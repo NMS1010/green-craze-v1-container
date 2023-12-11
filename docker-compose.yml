@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: green-craze-mysql
+    image: mysql:latest
+    restart: always
+    command: --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: green-craze-be-v1
+      MYSQL_DATABASE: green-craze
+      MYSQL_USER: green-craze
+      MYSQL_PASSWORD: green-craze-be-v1
+    networks:
+      - green-craze
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./backup/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - mysql_data:/var/lib/mysql
+  api:
+    container_name: green-craze-api
+    image: green-craze-api
+    restart: always
+    build:
+      context: ./green-craze-be-v1
+      dockerfile: Dockerfile
+    networks:
+      - green-craze
+    ports:
+      - 5201:80
+    depends_on:
+      - mysql
+  ui:
+    container_name: green-craze-ui
+    image: green-craze-ui
+    restart: always
+    environment:
+      - CHOKIDAR_USEPOLLING=true  
+      - BROWSER=none
+      - NODE_ENV=development
+    build: 
+      context: ./green-craze-fe
+      dockerfile: Dockerfile
+      target: development
+    networks:
+      - green-craze
+    volumes: 
+      - ./green-craze-fe:/app  
+      - /app/node_modules  
+    ports: 
+      - 5173:5173
+    depends_on:
+      - api
+volumes:
+  mysql_data:
+networks:
+  green-craze:
+    driver: bridge
+    
