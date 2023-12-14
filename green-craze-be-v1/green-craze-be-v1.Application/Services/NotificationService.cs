@@ -95,7 +95,12 @@ namespace green_craze_be_v1.Application.Services
 
             _unitOfWork.Repository<Notification>().Update(notification);
 
-            return await _unitOfWork.Save() > 0;
+            var res = await _unitOfWork.Save() > 0;
+
+            var countNotify = await _unitOfWork.Repository<Notification>().CountAsync(new NotificationSpecification(request.UserId, false));
+            await _hub.Clients.Group(request.UserId).SendAsync("CountUnreadingNotification", countNotify);
+
+            return res;
         }
     }
 }

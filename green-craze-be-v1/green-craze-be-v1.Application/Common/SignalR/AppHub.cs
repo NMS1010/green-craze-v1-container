@@ -1,5 +1,7 @@
 ﻿using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Intefaces;
+using green_craze_be_v1.Application.Specification.Notification;
+using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -11,11 +13,13 @@ namespace green_craze_be_v1.Application.Common.SignalR
     public class AppHub : Hub
     {
         private readonly IJwtService _jwtService;
-        private static Dictionary<string, int> clientsNotification = new Dictionary<string, int>();
+        private readonly IUnitOfWork _unitOfWork;
+        private static Dictionary<string, int> clientsNotification = new();
 
-        public AppHub(IJwtService jwtService)
+        public AppHub(IJwtService jwtService, IUnitOfWork unitOfWork)
         {
             _jwtService = jwtService;
+            _unitOfWork = unitOfWork;
         }
 
         public override async Task OnConnectedAsync()
@@ -40,6 +44,8 @@ namespace green_craze_be_v1.Application.Common.SignalR
 
             await Groups.AddToGroupAsync(Context.ConnectionId, Group.SALES);
 
+            var countNotify = await _unitOfWork.Repository<Notification>().CountAsync(new NotificationSpecification(userId, false));
+            await Clients.Group(userId).SendAsync("CountUnreadingNotification", countNotify);
             await base.OnConnectedAsync();
         }
 

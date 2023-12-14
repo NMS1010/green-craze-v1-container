@@ -24,14 +24,18 @@ function NotificationContextProvider({ children }) {
                 });
                 setCountNotify(count);
             });
+            
+            connection.on('CountUnreadingNotification', (count) => {
+                setCountNotify(count);
+            });
         })();
     }, []);
 
-    useEffect(() => {
-        if (data) {
-            setCountNotify(data?.data?.items?.filter((item) => !item.status)?.length || 0);
-        }
-    }, [data, isLoading]);
+    // useEffect(() => {
+    //     if (data) {
+    //         setCountNotify(data?.data?.items?.filter((item) => !item.status)?.length || 0);
+    //     }
+    // }, [data, isLoading]);
 
     return (
         <NotificationContext.Provider
