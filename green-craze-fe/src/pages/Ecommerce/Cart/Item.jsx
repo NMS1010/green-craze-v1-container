@@ -20,7 +20,7 @@ function Item({ cartItem }) {
             notification.error({
                 message: 'Không thể cập nhật số lượng sản phẩm, số lượng trong kho không đủ!'
             });
-            setCount(cartItem?.quantity)
+            // setCount(cartItem?.quantity)
             // console.log(error);
         },
         obj: {

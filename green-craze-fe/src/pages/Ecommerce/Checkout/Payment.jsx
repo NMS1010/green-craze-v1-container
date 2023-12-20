@@ -40,7 +40,7 @@ function Payment({ defaultAddress, chosenDelivery, totalCartPrice, chosenCartIte
         error: (e) => {
             notification.error({
                 message: 'Đặt hàng thất bại',
-                description: 'Đã có lỗi xảy ra trong quá trình đặt hàng. Vui lòng thử lại sau.',
+                description: 'Đã có lỗi xảy ra trong quá trình đặt hàng. Có thể số lượng sản phẩm không đủ, vui lòng thử lại sau.',
             });
         },
         mutate: (data) => {

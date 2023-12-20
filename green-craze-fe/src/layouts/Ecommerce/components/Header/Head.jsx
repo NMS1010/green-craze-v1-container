@@ -53,6 +53,7 @@ function Head() {
     const onLogout = () => {
         clearToken();
         setUser(null);
+        localStorage.removeItem('chosenCartItems');
         window.location.href = config.routes.web.login;
     };
 
