@@ -57,6 +57,8 @@ namespace green_craze_be_v1.Application.Services
             else
             {
                 cartItem.Quantity += request.Quantity;
+                if (cartItem.Quantity * variant.Quantity > quantity)
+                    throw new InvalidRequestException("Unexpected quantity, it must be less than or equal to product in inventory");
                 _unitOfWork.Repository<CartItem>().Update(cartItem);
             }
 
@@ -142,9 +144,22 @@ namespace green_craze_be_v1.Application.Services
 
             cartItem.Quantity = request.Quantity;
 
-            _unitOfWork.Repository<Cart>().Update(cart);
+            var isExceed = false;
+            if (quantity < (request.Quantity * cartItem?.Variant?.Quantity))
+            {
+                cartItem.Quantity = (int)(quantity / cartItem?.Variant?.Quantity);
+                isExceed = true;
+            }
+
+            if (cartItem.Quantity > 0)
+                _unitOfWork.Repository<Cart>().Update(cart);
+            else
+                _unitOfWork.Repository<CartItem>().Delete(cartItem);
 
             var isSuccess = await _unitOfWork.Save() > 0;
+
+            if (isSuccess && isExceed)
+                throw new InvalidRequestException("Unexpected quantity, it must be less than or equal to product in inventory");
 
             if (!isSuccess) throw new Exception("Cannot handle to update product quantity, an error has occured");
 

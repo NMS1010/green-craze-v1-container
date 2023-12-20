@@ -54,10 +54,28 @@ namespace green_craze_be_v1.Application.Services
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
 
+            Dictionary<long, long> productActualQuantity = new();
             foreach (var item in request.Items)
             {
-                var variant = await _unitOfWork.Repository<Variant>().GetById(item.VariantId)
+                var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(item.VariantId))
                     ?? throw new InvalidRequestException("Unexpected variantId");
+
+                var product = variant.Product;
+
+                if (!productActualQuantity.ContainsKey(product.Id))
+                {
+                    productActualQuantity.Add(product.Id, product.ActualInventory.Value);
+                }
+
+                var q = item.Quantity * variant.Quantity;
+
+                if (q > productActualQuantity[product.Id])
+                {
+                    throw new InvalidRequestException("Unexpected quantity, it must be less than or equal to product in inventory");
+                }
+
+                productActualQuantity[product.Id] -= q;
+
                 var variantPrice = item.Quantity * variant.TotalPrice;
                 totalAmount += variantPrice;
                 orderItems.Add(new OrderItem()
