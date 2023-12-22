@@ -24,6 +24,8 @@ namespace green_craze_be_v1.Application.Specification.Order
                   && x.Order.CreatedAt >= firstDate
                   && x.Order.CreatedAt <= lastDate
                   && x.Order.Status == status)
-        { }
+        {
+            AddInclude(x => x.Variant);
+        }
     }
 }
