@@ -12,7 +12,7 @@ function StatisticSale() {
             <div className="flex items-center justify-between mb-[2rem]">
                 <h5 className="font-medium text-center text-[2rem]">Đợi Sale hiện tại</h5>
             </div>
-            <div>
+            <div className='text-center'>
                 <Image
                     className="object-fill rounded-[5px] shadow-md"
                     width={300}
